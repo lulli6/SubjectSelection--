@@ -376,10 +376,14 @@ def edit_subject():
                 WHERE subject_id = %s"""
                 values = (
                     request.form['subject'],
-                    request.form['subject_id']
+                    request.args['subject_id']
                 )
-                cursor.execute(sql, values)
-                connection.commit()
+                try:
+                    cursor.execute(sql, values)
+                    connection.commit()
+                except pymysql.err.IntegrityError:
+                    flash('Subject name has already exist.')
+                    return redirect('/editsub?subject_id=' + request.args['subject_id'])
             return redirect('/subject')
     else:
         with create_connection() as connection:
